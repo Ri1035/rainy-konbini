@@ -79,7 +79,7 @@ export function buildStore(scene, runtime) {
   const roofMat = toon(0x4c515a);
   const roofPlane = new THREE.Mesh(planeGeo(S.x1 - S.x0 - 0.1, S.z1 - S.z0 - 0.1), roofMat);
   roofPlane.rotation.x = -Math.PI / 2;
-  roofPlane.position.set((S.x0 + S.x1) / 2, S.wall + 0.31, (S.z0 + S.z1) / 2);
+  roofPlane.position.set((S.x0 + S.x1) / 2, S.wall + 0.37, (S.z0 + S.z1) / 2);
   roofPlane.receiveShadow = true;
   g.add(roofPlane);
   // 女儿墙
@@ -692,16 +692,11 @@ export function buildStore(scene, runtime) {
     lights.push(p);
     return p;
   };
-  mkPoint(-6.5, CY - 0.6, -2.0, 0xffdcae, 28, 19);
-  mkPoint(-3.0, CY - 0.6, -8.0, 0xffdcae, 26, 19);
-  mkPoint(3.5, CY - 0.6, -5.5, 0xffdcae, 26, 19);
-  mkPoint(5.0, CY - 0.6, -1.6, 0xffe4c0, 20, 13);
-  mkPoint(-4.5, FY + 2.0, IZ0 + 1.0, 0xcfe6ff, 12, 8);
+  mkPoint(-6.2, CY - 0.6, -2.6, 0xffdcae, 30, 20);
+  mkPoint(-2.4, CY - 0.6, -8.4, 0xffd6a4, 30, 20);
+  mkPoint(3.6, CY - 0.6, -4.6, 0xffdcae, 28, 20);
   // 店外：檐下与门口补光（让人行道有暖光溢出）
-  mkPoint(-1.0, 3.3, 4.8, 0xffd9a8, 15, 12);
-  mkPoint(-7.6, 3.3, 4.6, 0xffd0a0, 9, 9);
-  // 店后通道补光
-  mkPoint(4.0, 3.0, S.z0 - 1.6, 0xffce9a, 10, 12);
+  mkPoint(-3.0, 3.4, 4.9, 0xffd9a8, 26, 17);
 
   /* ================= 屋顶设备 ================= */
   const acShell = toon(0x828a93);

@@ -129,9 +129,7 @@ export function buildNeighbors(scene, runtime) {
     nb.add(lg);
     cyl(nb, 0.012, 0.012, 0.3, matDark, lan.position.x, 2.5 + dy + 0.28, N.z1 + 0.55, { seg: 4, ol: 0 });
   }
-  const lanLight = new THREE.PointLight(0xff9a5a, 12, 7, 2);
-  lanLight.position.set(N.x1 - 2.4, 2.6, N.z1 + 1.0);
-  nb.add(lanLight);
+
 
   // 东立面（朝小巷）：窗 + 空调 + 管道 + 外楼梯
   for (let i = 0; i < 5; i++) {
@@ -255,7 +253,8 @@ export function buildNeighbors(scene, runtime) {
   const alLampBody = part(boxGeo(0.2, 0.14, 0.28), toon(0x4c525a), { ol: 0.02, shadow: false });
   alLampBody.position.set(al.x1 - 0.2, 2.6, -7.0);
   alleyGrp.add(alLampBody);
-  const alLamp = new THREE.Mesh(planeGeo(0.16, 0.1), glow(0xcfe4ff, 1.2));
+  const alLamp = new THREE.Mesh(planeGeo(0.16, 0.1), glow(0xcfe4ff, 1.2, true));
+  alLamp.userData.noMerge = true;
   alLamp.rotation.x = Math.PI / 2;
   alLamp.position.set(al.x1 - 0.2, 2.52, -7.0);
   alleyGrp.add(alLamp);
@@ -441,9 +440,7 @@ export function buildNeighbors(scene, runtime) {
   bLamp.position.set(B.x0 + 1.2, 2.35, B.z0 - 0.12);
   bLamp.rotation.x = Math.PI / 2;
   G.add(bLamp);
-  const bLight = new THREE.PointLight(0xffce90, 10, 7, 2);
-  bLight.position.set(B.x0 + 1.2, 2.2, B.z0 - 0.9);
-  G.add(bLight);
+
 
   // 底座剖切面一侧（南向）也点上几盏窗，避免出现大块死黑
   for (let i = 0; i < 3; i++) {

@@ -61,8 +61,8 @@ export function buildGround(scene, runtime) {
   /* ---------------- 镜面水膜层 ---------------- */
   const mirror = new Reflector(new THREE.PlaneGeometry(L.BASE * 2, L.BASE * 2), {
     clipBias: 0.0035,
-    textureWidth: 1024,
-    textureHeight: 1024,
+    textureWidth: (runtime && runtime.cfg && runtime.cfg.reflector) || 512,
+    textureHeight: (runtime && runtime.cfg && runtime.cfg.reflector) || 512,
     color: 0x6f7d8c,
   });
   mirror.rotation.x = -Math.PI / 2;

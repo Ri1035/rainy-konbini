@@ -683,31 +683,46 @@ export function getGradientMap() {
   return gradientMap;
 }
 
-/** 三渲二：卡通材质 */
+/** 材质缓存：同参数材质复用同一个实例，静态合并后才能把 draw call 压下来 */
+const matCache = new Map();
+function cachedMat(key, make) {
+  let m = matCache.get(key);
+  if (!m) { m = make(); matCache.set(key, m); }
+  return m;
+}
+
+/** 三渲二：卡通材质（同参数共享实例） */
 export function toon(color, opt = {}) {
-  return new THREE.MeshToonMaterial({
+  const key = `t|${color}|${opt.map ? opt.map.uuid : ''}|${opt.emissive ?? ''}|${opt.emissiveIntensity ?? ''}|${opt.side ?? ''}|${opt.transparent ? 1 : 0}`;
+  return cachedMat(key, () => new THREE.MeshToonMaterial({
     color,
     gradientMap: getGradientMap(),
     ...opt,
-  });
+  }));
 }
 
 /** 自发光面（灯箱、灯管）：不受光照，直接输出高亮色，交给 Bloom */
-export function glow(color, intensity = 1.6) {
-  const c = new THREE.Color(color).multiplyScalar(intensity);
-  return new THREE.MeshBasicMaterial({ color: c, toneMapped: true, fog: true });
+export function glow(color, intensity = 1.6, unique = false) {
+  const make = () => new THREE.MeshBasicMaterial({
+    color: new THREE.Color(color).multiplyScalar(intensity),
+    toneMapped: true,
+    fog: true,
+  });
+  if (unique) return make();
+  return cachedMat(`g|${color}|${intensity}`, make);
 }
 
-/** 带贴图的商品材质：贴图同时作为自发光，让店内显得明亮温暖 */
+/** 带贴图的商品材质：贴图同时作为自发光，让店内显得明亮温暖（同贴图+同强度共享） */
 export function litMap(tex, emissiveIntensity = 0.2, opt = {}) {
-  return new THREE.MeshToonMaterial({
+  const key = `l|${tex.uuid}|${emissiveIntensity}|${opt.side ?? ''}`;
+  return cachedMat(key, () => new THREE.MeshToonMaterial({
     map: tex,
     gradientMap: getGradientMap(),
     emissive: new THREE.Color(0xffffff),
     emissiveMap: tex,
     emissiveIntensity,
     ...opt,
-  });
+  }));
 }
 
 /** 玻璃 */

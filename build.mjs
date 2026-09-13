@@ -27,16 +27,16 @@ const tpl = readFileSync(join(here, 'index.template.html'), 'utf8');
 if (!tpl.includes(SLOT)) throw new Error('模板里找不到注入槽：' + SLOT);
 
 /* ---- 1) 单文件版（本地双击） ---- */
-writeFileSync(
-  join(here, 'index.html'),
-  tpl.replace(SLOT, () => js.replace(/<\/script/gi, '<\\/script')),
-  'utf8',
-);
+const single = tpl.replace(SLOT, () => '<script>' + js.replace(/<\/script/gi, '<\\/script') + '</script>');
+assertHtml(single, 'index.html');
+writeFileSync(join(here, 'index.html'), single, 'utf8');
 
 /* ---- 2) 拆分版（部署） ---- */
 const dist = join(here, 'dist');
 mkdirSync(join(dist, 'assets'), { recursive: true });
-writeFileSync(join(dist, 'index.html'), tpl.replace(SLOT, '<script src="/assets/app.js" defer></script>'), 'utf8');
+const split = tpl.replace(SLOT, '<script src="/assets/app.js" defer></script>');
+assertHtml(split, 'dist/index.html');
+writeFileSync(join(dist, 'index.html'), split, 'utf8');
 writeFileSync(join(dist, 'assets/app.js'), js, 'utf8');
 writeFileSync(
   join(dist, '_headers'),
@@ -44,6 +44,15 @@ writeFileSync(
   'utf8',
 );
 writeFileSync(join(dist, '.nojekyll'), '', 'utf8');
+
+/** 产物自检：必须含成对的 <script> 标签，否则页面会静默不执行 */
+function assertHtml(s, name) {
+  const open = (s.match(/<script\b/g) || []).length;
+  const close = (s.match(/<\/script>/g) || []).length;
+  if (open === 0 || open !== close) {
+    throw new Error(`[${name}] script 标签不配对（open=${open} close=${close}），构建中止`);
+  }
+}
 
 const kb = (n) => (n / 1024).toFixed(1) + ' KB';
 console.log('index.html      ' + kb(Buffer.byteLength(readFileSync(join(here, 'index.html')), 'utf8')) + '  (单文件)');

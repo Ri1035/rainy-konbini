@@ -76,10 +76,13 @@ export function buildProps(scene, runtime) {
     grp.position.set(x, 1.92 / 2 + 0.34, z);
     grp.rotation.y = ry || 0;
     G.add(grp);
-    // 机器前方的冷白光（照亮人行道）
-    const vl = new THREE.PointLight(0xd6e8ff, 7, 7, 2);
-    vl.position.set(x, 1.5, z + 1.0);
-    G.add(vl);
+    // 机器前方的冷白光（两台共用一盏，减少片元光照开销）
+    if (!runtime._vmLight) {
+      const vl = new THREE.PointLight(0xd6e8ff, 12, 9, 2);
+      vl.position.set(x - 0.65, 1.5, z + 1.0);
+      G.add(vl);
+      runtime._vmLight = vl;
+    }
     // 机器下方溅光
     lightStreak(G, 1.8, 4.2, 0xff9a8a, x + Math.sin(ry || 0) * 0.8, L.CURB_H + 0.018, z + Math.cos(ry || 0) * 0.9, 0, 0.26);
     return grp;
@@ -276,7 +279,7 @@ export function buildProps(scene, runtime) {
     grp.rotation.y = ry || 0;
     G.add(grp);
     if (on) {
-      const pl = new THREE.PointLight(0xffe0b0, 105, 26, 2);
+      const pl = new THREE.PointLight(0xffe0b0, 78, 15, 2);
       pl.position.set(x + Math.cos(ry || 0) * 1.32, 0.34 + h + 1.0, z + Math.sin(ry || 0) * 1.32);
       G.add(pl);
       runtime.streetLights = runtime.streetLights || [];
@@ -286,7 +289,7 @@ export function buildProps(scene, runtime) {
   }
   streetLamp(11.9, 6.3, Math.PI * 0.92, 6.0, true);
   streetLamp(19.4, 6.3, Math.PI, 5.4, true);
-  streetLamp(-18.6, 6.4, 0.1, 5.4, true);
+  streetLamp(-18.6, 6.4, 0.1, 5.4, false);
 
   /* ================= 电线杆 + 电线 ================= */
   const poles = [];
