@@ -3,22 +3,42 @@
 一个**单文件、可双击打开**的三维微缩景观：日式便利店街角，雨夜，三渲二（卡通渲染）。
 第三人称自由观看——拖拽旋转、滚轮缩放、右键/双指平移，无任何 UI 元素。
 
+- 线上预览（Cloudflare Pages）：https://rainy-konbini.pages.dev
+- 仓库：https://github.com/Ri1035/rainy-konbini
+
 ## 交付物
 
 | 文件 | 说明 |
 | --- | --- |
-| `index.html` | **成品**。自包含单文件（约 610 KB，three.js 已内联），双击即可在浏览器打开 |
+| `index.html` | **本地版成品**。自包含单文件（约 613 KB，three.js 已内联），双击即可在浏览器打开 |
+| `dist/` | **部署版产物**（`index.html` + `assets/app.js` + `_headers`）。拆分后 HTML 极小、JS 可长期缓存 |
 | `src/` | 源码（source of truth）。改这里的文件，再重新构建 |
-| `build.mjs` | 构建脚本：把 `src/` 打包并注入 `index.template.html` → 生成 `index.html` |
-| `.devtools/shot.cjs` | 截图验证脚本（用本机 Edge 无头渲染多角度截图） |
+| `build.mjs` | 构建脚本：一次产出上面两种形态 |
+| `preview/` | 多角度效果图 |
+| `.devtools/` | 本地验证脚本（截图 / 突破网络限制的推送辅助），不参与构建、不提交 |
 
 ## 重新构建
 
 ```bash
-node build.mjs
+npm install          # 首次
+node build.mjs       # 同时生成 index.html（单文件）与 dist/（拆分）
 ```
 
-依赖：`three@0.159`、`esbuild`（已在 `node_modules`）。
+## 重新部署到 Cloudflare Pages
+
+```bash
+# 首次：创建项目（之后可跳过）
+curl -X POST -H "Authorization: Bearer $CF_TOKEN" -H "Content-Type: application/json" \
+  -d '{"name":"rainy-konbini","production_branch":"main"}' \
+  https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects
+
+# 每次发布
+CLOUDFLARE_API_TOKEN=$CF_TOKEN CLOUDFLARE_ACCOUNT_ID=$CF_ACCOUNT_ID CI=1 \
+  npx --yes wrangler@3 pages deploy dist --project-name=rainy-konbini --branch=main --commit-dirty=true
+```
+
+> 国内网络下若 `github.com` 无法解析（加速器改写过 hosts），可参考 `.devtools/push.cjs`：
+> 进程内起一个 CONNECT 代理，把域名映射到实测可直连的真实 IP 后再 `git push`。
 
 ## 源码结构
 
